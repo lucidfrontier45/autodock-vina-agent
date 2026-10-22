@@ -1,0 +1,16 @@
+Receptor is ready. Summary:
+
+**Output: `/tmp/rec-eval/eval-3/without_skill/1LYZ_receptor.pdbqt`** — 1,262 atoms, all 129 residues, net Gasteiger charge +7e (correct for lysozyme at pH 7), valid AD4 types (`C, A, N, NA, OA, SA, HD`).
+
+**Process** — the raw 1LYZ entry (1975 real-space refinement) was too distorted for direct conversion:
+1. **Stripped waters** (101 HOH) → `1LYZ_protein.pdb`
+2. Meeko's `mk_prepare_receptor.py` initially failed: distance-based bond perception broke on corrupted geometry (0.84–0.95 Å bonds, sub-1.7 Å inter-atom contacts — e.g. ASP 119 OD1–OD2 at 1.6 Å, ALA 122 C=O at 0.84 Å). `--forgive_extra_bonds` and `-d` weren't sufficient, and deleting the 7 broken residues would have cascaded.
+3. **Regularized instead**: PDBFixer + OpenMM (scratch venv, since removed) — rebuilt missing atoms, added H at pH 7, minimized with amber14/GBN2. Potential energy dropped 241,880 → −22,753 kJ/mol, confirming severe strain relief while keeping the original frame.
+4. **Re-ran Meeko** on the fixed structure: template-based H placement + Gasteiger charges → PDBQT.
+
+**Files kept:**
+- `1LYZ_receptor.pdbqt` — Vina-ready rigid receptor
+- `1LYZ_fixed.pdb` / `1LYZ_fixed_H.pdb` — regularized structure (heavy-only / with H)
+- `1LYZ_protein.pdb`, `fix_receptor.py` — intermediates for reproducibility
+
+**Note:** 1LYZ has no co-crystallized ligand, so you'll need to define the search box yourself — for lysozyme's active site, center it on the Glu35/Asp52 cleft (e.g. center ≈ 23, 27, 12 in this frame; verify visually), or use `--box_enveloping` with a ligand.
