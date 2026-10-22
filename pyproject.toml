@@ -1,0 +1,13 @@
+[project]
+name = "autodock"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "gemmi>=0.7.5",
+    "meeko>=0.8.0",
+    "rdkit>=2026.9.1",
+    "scipy>=1.18.1",
+    "tqdm>=4.70.1",
+]
